@@ -33,9 +33,4 @@ class ArticlesAPI < Sinatra::Base
       article.slice('id', 'title', 'body')
     end
   end
-
-  def return_404
-    status 404
-    body "Data not found"
-  end
 end
