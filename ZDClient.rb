@@ -6,7 +6,7 @@ class ZDClient
 
   def self.request_faqs_by_page(page)      
     response = HTTParty.get("#{API_URL}?per_page=#{PER_PAGE}&page=#{page}")
-    #raise ZDHelpCenter::APIError, 'Not Found' if response.code != 200
+    raise StandardError, 'Not Found' if response.code != 200
 
     response
   end

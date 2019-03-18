@@ -4,4 +4,5 @@ gem 'sinatra'
 gem 'sinatra-cross_origin'
 gem 'redis-sinatra'
 gem 'httparty'
-#gem 'json', '~> 1.8', '>= 1.8.3'
+gem "rack-test", require: "rack/test"
+gem "rspec"

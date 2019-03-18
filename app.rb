@@ -3,7 +3,7 @@ require 'sinatra'
 require 'redis-sinatra'
 require_relative 'ZDClient'
 
-class SampleApp < Sinatra::Base
+class ArticlesAPI < Sinatra::Base
   register Sinatra::Cache
 
   get '/articles' do
@@ -12,7 +12,11 @@ class SampleApp < Sinatra::Base
     page = (params[:page] || 1).to_i
 
     response = settings.cache.fetch("zd_#{page}", expires_in: 360) do
-      ZDClient.request_faqs_by_page(page)
+      begin
+        zd_resp = ZDClient.request_faqs_by_page(page)
+      rescue
+	halt 404, 'Data not found' and return
+      end
     end
 
     @json_resp = JSON.parse(response.to_s)
@@ -28,5 +32,10 @@ class SampleApp < Sinatra::Base
     @json_resp['articles'].map do |article|
       article.slice('id', 'title', 'body')
     end
+  end
+
+  def return_404
+    status 404
+    body "Data not found"
   end
 end

@@ -1,7 +1,6 @@
 require_relative 'app'
 require 'sinatra/cross_origin'
 
-set :bind, '0.0.0.0'
 configure do
   enable :cross_origin
 end
@@ -19,4 +18,4 @@ end
 
 register Sinatra::Cache
 
-run SampleApp
+run ArticlesAPI
