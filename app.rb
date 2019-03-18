@@ -1,30 +1,32 @@
 require 'json'
 require 'sinatra'
 require 'redis-sinatra'
-require 'sinatra/cross_origin'
+require_relative 'ZDClient'
 
 class SampleApp < Sinatra::Base
-  set :bind, '0.0.0.0'
-  configure do
-    enable :cross_origin
-  end
-  before do
-    response.headers['Access-Control-Allow-Origin'] = '*'
-  end
-  
-  # routes...
-  options "*" do
-    response.headers["Allow"] = "GET, PUT, POST, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token"
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    200
-  end
-
   register Sinatra::Cache
 
   get '/articles' do
-    json = JSON.parse(settings.cache.fetch('greet', expires_in: 60) { '{"foo":"bar", "ping":"pong"}' })
-    p json
-    "TEST"
+    content_type :json
+
+    page = (params[:page] || 1).to_i
+
+    response = settings.cache.fetch("zd_#{page}", expires_in: 360) do
+      ZDClient.request_faqs_by_page(page)
+    end
+
+    @json_resp = JSON.parse(response.to_s)
+    {page: page, page_count: page_count, articles: articles}.to_json
+  end
+
+  private
+  def page_count
+    @json_resp['page_count']
+  end
+
+  def articles
+    @json_resp['articles'].map do |article|
+      article.slice('id', 'title', 'body')
+    end
   end
 end
